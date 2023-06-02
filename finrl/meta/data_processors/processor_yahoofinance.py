@@ -55,7 +55,7 @@ class YahooFinanceProcessor:
     ...
     """
 
-    def convert_interval(time_interval: str) -> str:
+    def convert_interval(self, time_interval: str) -> str:
         # Convert FinRL 'standardised' time periods to Yahoo format: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
         if time_interval in [
             "1Min",
@@ -79,9 +79,14 @@ class YahooFinanceProcessor:
         return time_interval
 
     def download_data(
-        self, ticker_list: list[str], start_date: str, end_date: str, time_interval: str
+        self,
+        ticker_list: list[str],
+        start_date: str,
+        end_date: str,
+        time_interval: str,
+        proxy: str | dict = None,
     ) -> pd.DataFrame:
-        time_interval = convert_interval(time_interval)
+        time_interval = self.convert_interval(time_interval)
 
         self.start = start_date
         self.end = end_date
@@ -101,6 +106,7 @@ class YahooFinanceProcessor:
                     start=start_date,
                     end=start_date + delta,
                     interval=self.time_interval,
+                    proxy=proxy,
                 )
                 temp_df["tic"] = tic
                 data_df = pd.concat([data_df, temp_df])
@@ -382,7 +388,7 @@ class YahooFinanceProcessor:
         tech_indicator_list: list[str],
         limit: int = 100,
     ) -> pd.DataFrame:
-        time_interval = convert_interval(time_interval)
+        time_interval = self.convert_interval(time_interval)
 
         end_datetime = datetime.datetime.now()
         start_datetime = end_datetime - datetime.timedelta(
